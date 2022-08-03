@@ -487,8 +487,7 @@
 								空格自动翻页/暂停；</br>
 								A/D调整翻页速度；</br>
 								Q/E开关朗读功能；</br>
-								+/-调整字体大小；</br>
-								在同一位置放上图片命名为1.jpg，点击时间可以替换背景</p>
+								+/-调整字体大小；</p>
 						</div>
 					</div>
 					<div id="readBoxContent-title"></div>
@@ -572,9 +571,9 @@
 		document.getElementById('timeFont').innerHTML = (d.getHours()<10?'0'+d.getHours():d.getHours()) + ':' + (d.getMinutes()<10?'0'+d.getMinutes():d.getMinutes());
 	}
 	document.getElementById('time').onclick = function() {
-		var url = window.location.href;
-		url = url.replace(/\/[^\/]+$/,'/1.jpg')
-		document.getElementById('bgImage').src= url
+		// var url = window.location.href;
+		// url = url.replace(/\/[^\/]+$/,'/1.jpg')
+		// document.getElementById('bgImage').src= url
 		// window.open(url,"_blank","toolbar=no, location=no, directories=no, status=no, menubar=no, scrollbars=no, resizable=no, copyhistory=no, width=800, height=350");
 	}
 	// ReadBox
