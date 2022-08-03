@@ -1,0 +1,1043 @@
+<html>
+	<head>
+		<title id="PageTitle">Reader ZY</title>
+		<style>
+			body {
+				background-color: #000;
+				font-family:"Microsoft Yahei Light","Microsoft Yahei",PingFangSC-Regular,Helvetica,sans-serif,"等线";
+				user-select: none;
+			}
+			#mainBody {
+				z-index: 1;
+				position: absolute;
+				top: calc(var(--body-top));
+				left: 0;
+				width: 100%;
+				transition: .25s;
+			}
+			#bgImage {
+				z-index: 2;
+				position: fixed;
+				top: 0;
+				left: 0;
+				width: 100%;
+				height: 100%;
+				object-fit: cover;
+				transition: opacity 1s,transform .25s,filter .25s;
+				opacity: 0;
+			}
+			#cover {
+				z-index: 3;
+				position: fixed;
+				top: 0;
+				left: 0;
+				width: 100%;
+				height: 100%;
+				background-image: radial-gradient(rgba(0,0,0,0) 0,rgba(0,0,0,.5) 100%),radial-gradient(rgba(0,0,0,0) 33%,rgba(0,0,0,.3) 166%);
+				transition: .25s;
+			}
+			#InputCover {
+				z-index: 98;
+				position: fixed;
+				top: 0;
+				left: 0;
+				width: 100%;
+				height: 100%;
+				transition: .25s;
+				backdrop-filter: blur(20px);
+				display: none;
+			}
+			.opaque {
+				opacity: 1 !important;
+			}
+			.bgFilter {
+				filter: blur(4px);
+				transform: scale(1.05);
+			}
+			.hidden {
+				display: none;
+			}
+			.slow-hidden {
+				opacity: 0 !important;
+			}
+			.show {
+				display: block !important;
+			}
+			.hidden-color {
+				color: rgba(255, 255, 255, 0) !important;
+				background-color: rgba(255, 255, 255, 0) !important;
+				backdrop-filter: blur(0px) !important;
+				box-shadow: rgb(0 0 0 / 20%) 0 0 0 !important;
+				text-shadow: 1px 1px 2px rgb(0 0 0 / 0%) !important;
+				margin-top: 200px;
+			}
+			#time {
+				z-index: 10;
+				position: fixed;
+				top: calc(100px);
+				left: 50%;
+				margin-left: -50px;
+				width: 100px;
+				text-align: center;
+				transition: .25s;
+			}
+			#time:hover {
+				transform: scale(1.1);
+			}
+			.time-active {
+				left: 90px !important;
+				top: 40px !important;
+			}
+			#timeFont {
+				color: #fff;
+				font-size: 36px;
+				font-weight: inherit;
+				text-shadow: 2px 2px 5px rgb(0 0 0 / 35%);
+				cursor: pointer;
+				transition: .25s;
+				line-height: 20px;
+				animation-name: delayedFadeIn;
+				animation-duration: 2s;
+				animation-iteration-count: 1;
+				animation-delay: 0s;
+			}
+			#readBox {
+				z-index: 10;
+				position: fixed;
+				top: 170px;
+				left: 50%;
+				transform: translateX(-50%);
+				border: none;
+				padding: 13px 15px;
+				border-radius: 30px;
+				color: rgb(255, 255, 255);
+				background-color: rgba(255,255,255,.25);
+				box-shadow: rgb(0 0 0 / 20%) 0 0 10px;
+				width: 230px;
+				height: 20px;
+				max-width: 80%;
+				max-height: 600px;
+				text-align: center;
+				font-size: 14px;
+				font-weight: 400;
+				backdrop-filter: blur(10px);
+				text-shadow: 1px 1.5px 1px rgb(0 0 0 / 35%);
+				transition: .25s, height .25s, width .2s;
+				overflow: hidden;
+			}
+			#readBox:hover {
+				width: 600px;
+				/* height: calc(100% - 230px); */
+			}
+			.readBox-active {
+				width: 1000px !important;
+				height: calc(100% - 160px) !important;
+				min-height: 20px;
+				/* top: 80px !important; */
+				top: max(80px, calc((100% - 600px) * 0.4)) !important;;
+				background-color: rgba(255,255,255,.5) !important;
+				color: rgba(0,0,0) !important;
+				text-shadow: 0px 0px 0px rgb(150 150 150 / 0.5) !important;
+			}
+			#timeline {
+				z-index: 10;
+				position: fixed;
+				top: 250px;
+				left: 50%;
+				transform: translateX(-50%);
+				border: none;
+				padding: 13px 15px;
+				border-radius: 30px;
+				color: rgba(255,255,255);
+				background-color: rgba(255,255,255,.25);
+				box-shadow: rgb(0 0 0 / 20%) 0 0 10px;
+				width: 230px;
+				height: 20px;
+				max-width: 80%;
+				max-height: 400px;
+				text-align: center;
+				font-size: 14px;
+				font-weight: 400;
+				backdrop-filter: blur(10px);
+				text-shadow: 1px 1px 2px rgb(0 0 0 / 35%);
+				transition: .25s, height .25s, width .2s;
+			}
+			#timeline:hover {
+				width: 600px;
+				/* height: calc(100% - 230px); */
+			}
+			.timeline-active {
+				width: 1000px !important;
+				height: calc(100% - 160px) !important;
+				min-height: 20px;
+				top: 80px !important;
+			}
+			.RightMenu {
+				display: none;
+			}
+			.RightMenu-active {
+				z-index: 99;
+				display: block;
+				opacity: 1;
+				backdrop-filter: blur(20px);
+				padding: 5px;
+				position: absolute;
+				min-width: 160px;
+				border-radius: 10px;
+				box-shadow: rgb(0 0 0 / 10%) 0 2px 10px;
+				overflow: hidden;
+				box-sizing: border-box;
+				touch-action: pan-y;
+				background-color:rgba(255,255,255,.6);
+			}
+			.timelineRightItem {
+				color:rgba(0,0,0,1);
+				padding: 10px 15px;
+				border-radius: 5px;
+				font-size: 12px;
+    		transition: .25s;
+				box-sizing: border-box;
+			}
+			.timelineRightItem i {
+				position: relative;
+				top: 1px;
+				margin-right: 15px;
+				font-size: 14px;
+				font-family: iconfont !important;
+				font-style: normal;
+			}
+			.timelineRightItem:hover {
+				background-color:rgba(0,0,0,.6);
+				color:rgba(255,255,255,1);
+			}
+			.disable {
+				color:rgba(0,0,0,.5) !important;
+				pointer-events: none;
+			}
+			#timelineInsert {
+				z-index: 99;
+				position: fixed;
+				height: 40px;
+				margin: 10px 0;
+				padding: 10px 50px;
+				width: 350px;
+				left: calc(50% - 225px);
+				top: calc(50% - 40px);
+				background-color: rgba(255,255,255,.25);
+    			box-shadow: rgb(0 0 0 / 20%) 0 0 10px;
+				text-shadow: 1px 1px 2px rgb(0 0 0 / 35%);
+				border-radius: 15px;
+				display: none;
+			}
+			#insertItem {
+				width: 100px;
+				outline: 0;
+    			border: none;
+				padding: 0 10px;
+				font-size: 14px;
+				text-align: center;
+				font-family: var(--fonts-light);
+				height: 100%;
+				border-radius: 10px;
+				margin: 0 5px;
+				color:rgba(255,255,255,1);
+				background-color: rgba(0,0,0,.1);
+				box-shadow: rgb(0 0 0 / 60%) 0 0 5px
+
+			}
+			#insertItem::-webkit-input-placeholder {
+				color:rgba(255,255,255,1);
+			}
+			#search {
+				outline: 0;
+    			border: none;
+				padding: 0 10px;
+				font-size: 14px;
+				text-align: center;
+				font-family: var(--fonts-light);
+				height: 23px;
+				border-radius: 10px;
+				margin: 0 5px;
+				color:rgba(255,255,255,1);
+				background-color: rgba(0,0,0,.1);
+				box-shadow: rgb(0 0 0 / 60%) 0 0 5px;
+				transition: .25s;
+			}
+			#search::-webkit-input-placeholder {
+				color:rgba(255,255,255,1);
+			}
+			#search:focus {
+				background-color:rgba(0,0,0,.2);
+			}
+			#insertButton {
+				width: 100px;
+				outline: 0;
+    			border: none;
+				padding: 0 10px;
+				font-size: 14px;
+				text-align: center;
+				font-family: var(--fonts-light);
+				height: 100%;
+				border-radius: 10px;
+				margin: 0 5px;
+				color:rgba(255,255,255,1);
+				background-color: rgba(0,0,0,.7);
+				box-shadow: rgb(0 0 0 / 60%) 0 0 5px
+			}
+			/* ReadBox */
+			#readBoxContent {
+				overflow-y: auto;
+				overflow-x: hidden;
+				max-height: calc(100% - 40px);
+				padding-right: 5px;
+				margin-top: 10px;
+				border-radius: 30px;
+				transition: opacity .5s;
+				opacity: 1;
+			}
+			::-webkit-scrollbar {
+				width: 5px;
+			}
+			::-webkit-scrollbar-thumb {
+				background-color: rgba(0,0,0,.3);
+				border-radius: 3px;
+			}
+			#readBoxContent-title {
+				word-wrap: break-word;
+				word-break: break-all;
+				font-size: 20px;
+				text-align: center;
+				margin-top: 30px;
+			}
+			#novel-status {
+				position: fixed;
+				bottom: 0;
+				left: 10%;
+				font-size: 14px;
+				width: 20%;
+				padding: 10px 10px 10px 10px;
+				z-index: 99;
+				box-sizing: border-box;
+				cursor: pointer;
+				user-select: none;
+				overflow: hidden;
+				border-radius: 7px;
+    		transition: .25s;
+			}
+			#novel-status:hover {
+				background-color:rgba(0,0,0,.5);
+				color:rgba(255,255,255,1);
+			}
+			#chapter-status {
+				position: fixed;
+				bottom: 0;
+				right: 0;
+				font-size: 14px;
+				width: 50%;
+				padding: 10px 10px 10px 10px;
+				z-index: 99;
+				/* background: rgba(0,0,0,.7); */
+				box-sizing: border-box;
+				cursor: pointer;
+				user-select: none;
+				overflow: hidden;
+				border-radius: 7px;
+    		transition: .25s;
+			}
+			#chapter-status:hover {
+				background-color:rgba(0,0,0,.5);
+				color:rgba(255,255,255,1);
+			}
+			#settings {
+				position: fixed;
+				bottom: 0;
+				left: 0;
+				font-size: 19px;
+				width: 10%;
+				padding: 10px 10px 10px 10px;
+				z-index: 99;
+				opacity: 0.3;
+				box-sizing: border-box;
+				cursor: pointer;
+				user-select: none;
+				overflow: hidden;
+				border-radius: 7px;
+				transition: .25s;
+			}
+			#settings:hover {
+				background-color:rgba(0,0,0,.5);
+				color:rgba(255,255,255,1);
+				opacity: 1;
+			}
+			#chapter-list {
+				cursor: pointer;
+				overflow: hidden;
+				position: fixed;
+				top: 10px;
+				left: 50%;
+				z-index: 201;
+				max-width: 1100px;
+				max-height: 0px;
+				width: 60%;
+				box-sizing: border-box;
+				transform: translateX(-50%);
+				opacity: 0;
+				backdrop-filter: blur(10px);
+				background: rgba(0,0,0,.6);
+				color: rgba(255, 255, 255, 1);
+				border-radius: 15px;
+				transition: .25s;
+			}
+			.chapter-list-active {
+				max-height: calc(100% - 50px) !important;
+				opacity: 1 !important;
+			}
+			#chapter-list-box {
+				padding: 10px;
+			}
+			#chapter-list-content {
+				overflow-y: auto;
+				overflow-x: hidden;
+				padding-right: 5px;
+				height: calc(100vh - 20px);
+				max-height: 350px;
+			}
+			#chapter-list-content > p:hover {
+				background: #b1afaf;
+			}
+			#readBoxText {
+				font-size: 18px;
+				/* font-family: 'Microsoft YaHei',PingFangSC-Regular,HelveticaNeue-Light,'Helvetica Neue Light',sans-serif; */
+			}
+			#readBoxText p {
+				cursor: default;
+				line-height: 1.8;
+				word-wrap: break-word;
+    		word-break: break-all;
+
+				/* user-select: none; */
+			}
+			.focus {
+				background: #b1afaf;
+			}
+			@media screen and (max-width: 1000px) {
+				#readBox {
+					max-width: 95%;
+				}
+				.readBox-active {
+					top: 10px !important;
+					height: calc(100% - 45px) !important
+				}
+			}
+
+		</style>
+		<script src="https://apps.bdimg.com/libs/jquery/2.1.4/jquery.min.js"></script>
+	</head>
+	<body class="theme1">
+		<div id="mainBody">
+			<img id="bgImage" src="https://raw.githubusercontent.com/chaos-w/hostfiles/main/1.jpg">
+			<div id="cover" style="opacity: 1;"></div>
+			<div id="time"><span id="timeFont">1</span></div>
+			<div id="readBox">
+				<div id="readBoxPlaceholder">Read Box</div>
+				<div id="readBoxContent" class="hidden">
+					<div id="settings" style="display:none1" class="timelineRightItem2">
+						<svg viewBox="0 0 24 24" fill="currentColor"
+							width="1em" height="1em">
+							<path
+								d="M14.346 0l.854 4.274 3.627-2.418 3.317 3.317L19.726 8.8 24 9.654v4.692l-4.274.854 2.418 3.627-3.317 3.317-3.627-2.418L14.346 24H9.654L8.8 19.726l-3.627 2.418-3.317-3.317L4.274 15.2 0 14.346V9.654L4.274 8.8 1.856 5.173l3.317-3.317L8.8 4.274 9.654 0h4.692zm-3.462 1.5l-.823 4.117-1.204.498-3.493-2.329-1.578 1.578 2.329 3.494-.498 1.203-4.117.823v2.232l4.117.823.498 1.204-2.329 3.493 1.578 1.578 3.494-2.329 1.203.498.823 4.117h2.232l.823-4.117 1.204-.498 3.492 2.329 1.579-1.578-2.329-3.493.498-1.204 4.117-.823v-2.232l-4.117-.823-.498-1.203 2.329-3.494-1.578-1.578-3.493 2.329-1.204-.498-.823-4.117h-2.232zM12 8.423a3.577 3.577 0 100 7.154 3.577 3.577 0 000-7.154zM6.923 12a5.077 5.077 0 1110.154 0 5.077 5.077 0 01-10.154 0z">
+							</path>
+						</svg>
+					</div>
+					<div id="settingsClick">
+						<div>
+
+						</div>
+					</div>
+					<div id="novel-status">
+						<span>书名</span>
+					</div>
+					<div id="novel-list">
+
+					</div>
+					<div id="chapter-status">
+						<span>目录</span>
+					</div>
+					<div id="chapter-list">
+						<div id="chapter-list-box">
+							<div id="chapter-list-content">
+								<p id='1' href='' onclick='selectPage(1)'>
+										第一章
+								</p>
+							</div>
+						</div>
+					</div>
+					<div id="import" style="text-align: center; margin:30px; ">
+						<h2>Read Box</h2>
+						<p>&nbsp;</p>
+						<input id="file" type="file" onchange="jsReadFiles(this.files)" style="margin-left: 70px;" />
+						<p>此处导入 / Import here</p>
+						<p>&nbsp;</p>
+						<input placeholder="或者此处搜索" type="text" id="search" size="30" autocomplete="off" onkeydown="entersearch()"/>
+						<div id="search-result"></div>
+						<div>
+							<p>&nbsp;</p>
+							<p>说明：</br>
+								左右键翻页；</br>
+								空格自动翻页/暂停；</br>
+								A/D调整翻页速度；</br>
+								Q/E开关朗读功能；</br>
+								+/-调整字体大小；</br>
+								在同一位置放上图片命名为1.jpg，点击时间可以替换背景</p>
+						</div>
+					</div>
+					<div id="readBoxContent-title"></div>
+					<div id="readBoxText">
+					</div>
+					<div id="nextPage" class="hidden">
+						<p id="k1" href='/' onclick='selectPage(-1)'>上一页</p>
+						<p id="k2" href='/' onclick='selectPage(1)'>下一页</p>
+					</div>
+					<div class="hidden">
+						<p id="space" href='/' class="stop" value="1">自动滚动</p>
+						<p id="a" href='/'>滚动速度小</p>
+						<p id="d" href='/'>滚动速度大</p>
+						<p id="+" href='/'>字体放大</p>
+						<p id="-" href='/'>字体缩小</p>
+						<p id="q" href='/'>开始朗读</p>
+						<p id="e" href='/'>停止朗读</p>
+					</div>
+				</div>
+			</div>
+			<div id="timeline" style="display:none">
+				<div id="timelinePlaceholder">Timeline</div>
+
+				<div id="timelineContent">
+
+				</div>
+			</div>
+			<div id="timelineRight" class="RightMenu">
+				<div class="timelineRightItem" id="timelineRightInsert">
+					<i>✏️</i>
+					Insert
+				</div>
+				<div class="timelineRightItem disable" id="timelineRightRemove">
+					<i>🗑️</i>
+					Remove
+				</div>
+				<div class="timelineRightItem disable" id="timelineRightCopy">
+					<i>📰</i>
+					Copy
+				</div>
+				<div class="timelineRightItem disable" id="timelineRightPaste">
+					<i>📋</i>
+					Past
+				</div>
+			</div>
+			<div id="InputCover">
+			</div>
+			<div id="timelineInsert">
+				<input type="text" id="insertItem" name="skillName" size="30" placeholder="Skill Name" autocomplete="off">
+				<input type="text" id="insertItem" name="skillTime" size="30" placeholder="Skill Time" autocomplete="off">
+				<button id="insertButton">Insert</button>
+			</div>
+			<div id="backUp" class="hidden"></div>
+		</div>
+	</body>
+</html>
+
+
+<script>
+	window.onload = function() {
+		bgImageLoad();
+		setInterval(function() { timeLoad(); }, 1000);
+	}
+
+	// Right Click hide
+	document.oncontextmenu=new Function("event.returnValue=false;")
+
+	// Image
+	function bgImageLoad() {
+		if (document.readyState == "complete") {
+			document.getElementById('bgImage').classList.add('opaque');
+		}
+	}
+
+	// Time
+	document.addEventListener('DOMContentLoaded',function(){
+    	timeLoad()
+	});
+	function timeLoad() {
+		var d = new Date();
+		document.getElementById('timeFont').innerHTML = (d.getHours()<10?'0'+d.getHours():d.getHours()) + ':' + (d.getMinutes()<10?'0'+d.getMinutes():d.getMinutes());
+	}
+	document.getElementById('time').onclick = function() {
+		var url = window.location.href;
+		url = url.replace(/\/[^\/]+$/,'/1.jpg')
+		document.getElementById('bgImage').src= url
+		// window.open(url,"_blank","toolbar=no, location=no, directories=no, status=no, menubar=no, scrollbars=no, resizable=no, copyhistory=no, width=800, height=350");
+	}
+	// ReadBox
+	// Click open
+	document.getElementById('readBox').onclick = function() {
+		if ((' ' + document.getElementById('readBox').className + ' ').indexOf(' ' + 'readBox-active' + ' ') === -1) {
+			document.getElementById('readBox').classList.add('readBox-active');
+			document.getElementById('bgImage').classList.add('bgFilter');
+			document.getElementById('readBoxPlaceholder').classList.add('hidden');
+			document.getElementById('time').classList.add('time-active');
+			document.getElementById('timeline').classList.add('hidden-color');
+			setTimeout(function(){
+				document.getElementById('readBoxContent').classList.remove('hidden');
+			}, 250);
+			setTimeout(function(){
+				document.getElementById('readBoxContent').classList.remove('slow-hidden');
+			}, 300);
+		}
+	}
+	document.getElementById('timeline').onclick = function() {
+		if ((' ' + document.getElementById('timeline').className + ' ').indexOf(' ' + 'timeline-active' + ' ') === -1) {
+			document.getElementById('timeline').classList.add('timeline-active');
+			document.getElementById('bgImage').classList.add('bgFilter');
+			document.getElementById('readBoxPlaceholder').classList.add('hidden');
+			document.getElementById('time').classList.add('time-active');
+			document.getElementById('readBox').classList.add('hidden-color');
+		}
+		document.getElementById('timelineRight').classList.remove('RightMenu-active');
+	}
+
+	// settings
+	document.getElementById('settings').onclick = function() {
+
+	}
+	// Timeline right
+	function timelineRight() {
+		document.body.clientWidth>(parseInt(event.pageX) + 160)?document.getElementById('timelineRight').style.left = event.pageX:document.getElementById('timelineRight').style.left = (document.body.clientWidth - 160) + 'px';
+		document.body.clientHeight>(parseInt(event.pageY) + 175)?document.getElementById('timelineRight').style.top = event.pageY:document.getElementById('timelineRight').style.top = (document.body.clientHeight - 175) + 'px';
+		document.getElementById('timelineRight').classList.add('RightMenu-active');
+	}
+	document.getElementById('timelineRightInsert').onclick = function() {
+		document.getElementById('InputCover').classList.add('show');
+		document.getElementById('timelineInsert').classList.add('show');
+		document.getElementById('timelineRight').classList.remove('RightMenu-active');
+	}
+	document.getElementById('InputCover').onclick = function() {
+		document.getElementById('InputCover').classList.remove('show');
+		document.getElementById('timelineInsert').classList.remove('show');
+	}
+
+	// Roll back
+	function rollback() {
+		document.getElementById('readBox').classList.remove('readBox-active');
+		document.getElementById('bgImage').classList.remove('bgFilter');
+		document.getElementById('readBoxPlaceholder').classList.remove('hidden');
+		document.getElementById('readBoxContent').classList.add('hidden');
+		document.getElementById('readBoxContent').classList.add('slow-hidden');
+		document.getElementById('time').classList.remove('time-active');
+		document.getElementById('timeline').classList.remove('hidden-color');
+		document.getElementById('readBox').classList.remove('hidden-color');
+		document.getElementById('timeline').classList.remove('timeline-active');
+		document.getElementById('timelineRight').classList.remove('RightMenu-active');
+	}
+	// Right click hide
+	document.getElementById('readBox').addEventListener("contextmenu", rollback);
+
+	// Cover click rollback
+	document.getElementById('cover').addEventListener("contextmenu", rollback);
+	document.getElementById('cover').addEventListener("click", rollback);
+
+	// Timeline right click
+	document.getElementById('timeline').addEventListener("contextmenu", timelineRight);
+
+
+	// ReadBox
+	function jsReadFiles(files) {
+		if (files.length) {
+			var file = files[0];
+			var reader = new FileReader();
+			if (/text+/.test(file.type)) {
+				// 文件名
+				_FileName = document.getElementById("file").value;
+				_FileName = _FileName.replace(/^.+?\\([^\\]+?)(\.[^\.\\]*?)?$/gi, "$1").substring(0,10); //正则表达式获取文件名，不带后缀
+				// 读取文件
+				reader.readAsText(file);
+				reader.onload = function(e) {
+					var errorutf8 = this.result.match(/�/g) != null?this.result.match(/�/g).length:0
+					reader.readAsText(file, 'gbk');
+					reader.onload = function(oFRevent) {
+						var errorgbk = this.result.match(/�/g) != null?this.result.match(/�/g).length:0
+						this.encoding = errorutf8 < errorgbk?'UTF-8':'gbk'
+						reader.readAsText(file, this.encoding);
+						reader.onload = function(oFRevent) {
+							let Origin = this.result
+							// 预处理
+							let Fix1 = new RegExp('###','g')
+							Origin = Origin.replace(Fix1,'')
+							let Fix2 = new RegExp('下载小说TXT合集就上downnovel.com','g')
+							Origin = Origin.replace(Fix2,'')
+							// 存储所有文字
+							let backUp = Origin;
+							document.getElementById('backUp').innerHTML = backUp;
+							// Split chapter
+							if (Origin.match(/(?=\n\S+)/g) != null && (Origin.match(/(?=\n\S+)/g).length > (Origin.match(/\n/g).length * 0.5))) {
+								// 顶格
+								if (Origin.match(/Chapter/g) != null && Origin.match(/Chapter/g).length > 10) {
+									var allText = Origin.split(/(?=Chapter)/);
+								} else if (Origin.match(/\n第/g) != null && Origin.match(/\n第/g).length > 10) {
+									var allText = Origin.split(/(?=\n第)/);
+								} else {
+									var allText = Origin.split(/(?=\r\n\r\n)/);
+								}
+							} else {
+								// 正常
+								if (Origin.match(/(?=(\n\S[^\n]+(\n[^\n^\S]{2}\S[^\n]+){6}))/g) != null && Origin.match(/(?=(\n\S[^\n]+(\n[^\n^\S]{2}\S[^\n]+){6}))/g).length > 10) {
+									// 以章节名顶格并且正文换行且起码有6行为一章节
+									var allText = Origin.split(/(?=\n\S[^\n]+\n[^\n^\S]{2}\S[^\n]+\n[^\n^\S]{2}\S[^\n]+\n[^\n^\S]{2}\S[^\n]+\n[^\n^\S]{2}\S[^\n]+\n[^\n^\S]{2}\S[^\n]+)/);
+								} else {
+									var allText = Origin.split(/(?=\n\S)/);
+								}
+							}
+							let i = 0;
+							if(allText[i] != null && allText[i].match(/\n\S/) != null) {
+								// Split Title
+								if (allText[i].match(/(?=(\n\S[^\n]+(\n[^\n^\S]{2}\S[^\n]+){6}))/g) != null) {
+									var Page = allText[i].split(/(?<=\n\S[^\n]+)(?=\n[^\n^\S]{2}\S[^\n]+\n[^\n^\S]{2}\S[^\n]+\n[^\n^\S]{2}\S[^\n]+\n[^\n^\S]{2}\S[^\n]+\n[^\n^\S]{2}\S[^\n]+)/)
+								} else if (allText[i].match(/^第/) != null) {
+									var Page = allText[i].split(/(?<=^第[^\n]*\n)/);
+								} else if (allText[i].match(/^Chapter/) != null) {
+									var Page = allText[i].split(/(?<=Chapter[^\n]*\n)/);
+								} else {
+									var Page = []
+									Page[0] = ''
+									Page[1] = allText[i]
+									// var Page = allText[i].split(/(?<=\n\S[^\n]*\n)/);
+								}
+								// Write the page title
+								// document.title = Page[0];
+								document.getElementById('readBoxContent-title').innerHTML = Page[0];
+								// Write the page footer
+								if (Page[0]!= undefined && Page[0] === '') {
+									document.querySelector('#chapter-status > span').innerHTML = '选择章节，或按→开始阅读' + ' 0 %';
+								} else {
+									document.querySelector('#chapter-status > span').innerHTML = Page[0] + ' 0 %';
+								}
+								document.querySelector('#novel-status > span').innerHTML = '《' + _FileName + '》';
+								if (Page[1] != undefined) {
+									let PageContent = Page[1].split(/[(\r\n)\r\n]+/);
+									let PageText = ' ';
+									for (j = 0; j < PageContent.length; j ++) {
+										PageText = PageText + '<p>' + PageContent[j] + '</p>'
+									}
+									// Write the page content
+									document.getElementById('readBoxText').innerHTML = PageText;
+								}
+							} else {
+								document.getElementById('readBoxText').innerHTML = allText[i];
+								console.log('import error')
+							}
+							// import chapter list
+							if (allText.length) {
+								var catalogue = ' '
+								for (k = 0; k < allText.length; k ++) {
+									if(allText[k].match(/\n\S/) != null) {
+										// Split Title
+										if (allText[k].match(/(?=\n\S[^\n]+(\n[^\n^\S]{2}\S[^\n]+){6})/) != null) {
+											var Page = allText[k].split(/(?<=\n\S[^\n]+)(?=\n[^\n^\S]{2}\S[^\n]+\n[^\n^\S]{2}\S[^\n]+\n[^\n^\S]{2}\S[^\n]+\n[^\n^\S]{2}\S[^\n]+\n[^\n^\S]{2}\S[^\n]+)/)
+										} else if (allText[k].match(/^Chapter/) != null) {
+											var Page = allText[k].split(/(?<=Chapter[^\n]*\n)/);
+										} else if (allText[k].match(/^第/) != null) {
+											var Page = allText[k].split(/(?<=^第[^\n]*\n)/);
+										} else {
+											var Page = []
+											Page[0] = allText[k].substring(0,20) + '^_^'
+											Page[1] = allText[k]
+											// var Page = allText[k].split(/(?<=\n\S[^\n]*\n)/);
+										}
+										// Page[0] is Page title
+										catalogue = catalogue + '<p id=\'' + k + '\' href=\'\/\' onclick=\'selectPage(' + k + ')\'>' + k + ' - ' + Page[0] + '</p>';
+									} else {
+										// Page[0] is Page title
+										catalogue = catalogue + '<p id=\'' + k + '\' href=\'\/\' onclick=\'selectPage(' + k + ')\'>' + k + ' - ' + allText[k].substring(0,10) + '</p>';
+									}
+								}
+								catalogue = catalogue + '<p id=\'' + 'final' + '\'>'  + '</p>';
+								document.getElementById('chapter-list-content').innerHTML = catalogue;
+								document.getElementById('final').href = k;
+							}
+							document.getElementById('import').remove();
+						}
+					}
+				}
+			}
+		}
+	}
+
+	function selectPage(n) {
+		if (n === -1) {
+			n = 0
+		}
+		var backUp = document.getElementById('backUp').innerHTML;
+		// Split Chapter
+		if (backUp.match(/(?=\n\S+)/g) != null && backUp.match(/(?=\n\S+)/g).length > (backUp.match(/\n/g).length * 0.5)) {
+			// 顶格
+			if (backUp.split(/Chapter/) != null && backUp.split(/Chapter/).length > 10) {
+				var allText = backUp.split(/(?=Chapter)/);
+			} else if (backUp.match(/\n第/g) != null && backUp.match(/\n第/g).length > 10) {
+				var allText = backUp.split(/(?=\n第)/);
+			} else {
+				var allText = backUp.split(/(?=\r\n\r\n)/);
+			}
+		} else {
+			if (backUp.match(/(?=\n\S[^\n]+(\n[^\n^\S]{2}\S[^\n]+){6})/g) != null && backUp.match(/(?=\n\S[^\n]+(\n[^\n^\S]{2}\S[^\n]+){6})/g).length > 10) {
+				// 以章节名顶格并且正文换行且起码有6行为一章节
+				var allText = backUp.split(/(?=\n\S[^\n]+\n[^\n^\S]{2}\S[^\n]+\n[^\n^\S]{2}\S[^\n]+\n[^\n^\S]{2}\S[^\n]+\n[^\n^\S]{2}\S[^\n]+\n[^\n^\S]{2}\S[^\n]+)/);
+			} else {
+				var allText = backUp.split(/(?=\n\S)/);
+			}
+		}
+
+		if(allText[n] != null && allText[n].match(/\n\S/) != null) {
+			// Split Title
+			if (allText[n].match(/(?=\n\S[^\n]+(\n[^\n^\S]{2}\S[^\n]+){6})/g) != null) {
+				var Page = allText[n].split(/(?<=\n\S[^\n]+)(?=\n[^\n^\S]{2}\S[^\n]+\n[^\n^\S]{2}\S[^\n]+\n[^\n^\S]{2}\S[^\n]+\n[^\n^\S]{2}\S[^\n]+\n[^\n^\S]{2}\S[^\n]+)/)
+			} else if (allText[n].match(/^Chapter/) != null) {
+				var Page = allText[n].split(/(?<=Chapter[^\n]*\n)/);
+			} else if (allText[n].match(/^第/) != null) {
+				var Page = allText[n].split(/(?<=^第[^\n]*\n)/);
+			} else {
+				var Page = allText[n].split(/(?<=\n\S[^\n]*\n)/);
+			}
+			// Write the page title
+			// document.title = Page[0];
+			document.getElementById('readBoxContent-title').innerHTML = Page[0];
+			// Write the page footer
+			document.querySelector('#chapter-status > span').innerHTML = Page[0] + ' ' + ((n / (allText.length - 1)) * 100).toFixed(2) + ' %';
+			document.querySelector('#novel-status > span').innerHTML = '《' + _FileName + '》';
+			let PageContent = Page[1].split(/[(\r\n)\r\n]+/);
+			let PageText = ' ';
+			for (j = 0; j < PageContent.length; j ++) {
+				PageText = PageText + '<p>' + PageContent[j] + '</p>'
+			}
+			// Hidden menu
+			document.getElementById('chapter-list').classList.remove('chapter-list-active');
+			// Scroll to the top
+			document.getElementById('readBoxContent').scrollTop = 0;
+			// Focus the menu
+			var totle = document.getElementById('final').href;
+			for (o = 0; o < totle; o ++) {
+				if (o > n | o < n) {
+					document.getElementById(o).classList.remove('focus');
+				}
+			}
+			document.getElementById(n).classList.add('focus');
+			// Write the page content
+			document.getElementById('readBoxText').innerHTML = PageText;
+			// Write next page arrow
+			document.getElementById('nextPage').innerHTML =
+			'<p id="k1" href="/" onclick="selectPage('+ (n-1) + ')">Pre</p><p id="k2" href="/" onclick="selectPage('+ (n+1) + ')">Next</p>';
+		} else {
+			document.getElementById('readBoxContent-title').innerHTML = '';
+			document.getElementById('readBoxText').innerHTML = allText[n];
+			// Hidden menu
+			document.getElementById('chapter-list').classList.remove('chapter-list-active');
+			// Scroll to the top
+			document.getElementById('readBoxContent').scrollTop = 0;
+			// Focus the menu
+			var totle = document.getElementById('final').href;
+			for (o = 0; o < totle; o ++) {
+				if (o > n | o < n) {
+					document.getElementById(o).classList.remove('focus');
+				}
+			}
+			document.getElementById(n).classList.add('focus');
+			document.getElementById('nextPage').innerHTML =
+			'<p id="k1" href="/" onclick="selectPage('+ (n-1) + ')">Pre</p><p id="k2" href="/" onclick="selectPage('+ (n+1) + ')">Next</p>';
+			console.log('import error')
+		}
+	}
+
+	function entersearch() {
+		var event = window.event || arguments.callee.caller.arguments[0];
+		if (event.keyCode == 13)
+        {
+           search();
+        }
+	}
+
+	function search() {
+		var name = document.getElementById('search').value;
+		// http://downnovel.com/search.htm?keyword=%E4%BB%80%E4%B9%88%E5%8F%AB%E5%85%AD%E8%BE%B9%E5%BD%A2%E6%89%93%E9%87%8E%E5%95%8A
+		// $.ajax({
+
+		// 	url:"http://downnovel.com/search.htm",
+		// 	type:"get",
+		// 	async : false,
+		// 	contentType:"application/x-www-form-urlencoded;charset=UTF-8",
+		// 	data:{"keyword":name},
+		// 	dataType:"json",
+		// 	success:function(data){
+		// 		alert(1)
+		// 		var searHtml="";
+		// 		for(var i=0;i<data.length;i++){
+		// 			var lv=data[i];
+		// 			searHtml+="<li><a href='detail.html?id="+lv.id+"'><span class='itemText'>"+lv.t1+"</span><span class='itemPrize'>"+lv.price+"</span><a></li>";
+		// 		}
+		// 		alert(searHtml)
+		// 	},
+		// 	error:function(){
+		// 		console.log("搜索失败")
+		// 	}
+		// });
+		var datasuccess = function(data){
+			alert(data)
+		}
+		var scriptDom = document.getElementById('search-result')
+		scriptDom.src = 'http://downnovel.com/search.htm?keyword=%E4%BB%80%E4%B9%88%E5%8F%AB%E5%85%AD%E8%BE%B9%E5%BD%A2%E6%89%93%E9%87%8E%E5%95%8A'
+	}
+
+	// 自动滚动
+	document.getElementById('space').onclick = function startScroll() {
+		var aScrollTop = document.getElementById('readBoxContent').scrollTop
+		var viewHeight = document.getElementById('readBoxContent').clientHeight
+		var aScrollHeight = document.getElementById('readBoxContent').scrollHeight;
+		var height = parseInt(document.getElementById('space').attributes['value'].value)
+		if ((height + aScrollTop + viewHeight) < aScrollHeight) {
+			if (document.getElementById('space').classList[0] === 'stop') {
+				document.getElementById('space').classList.remove('stop')
+				document.getElementById('space').classList.add('active')
+				autoScroll()
+			} else {
+				document.getElementById('space').classList.remove('active')
+				document.getElementById('space').classList.add('stop')
+			}
+		}
+	}
+	function autoScroll() {
+		if  (document.getElementById('space').classList[0] === 'active') {
+			var aScrollTop = document.getElementById('readBoxContent').scrollTop
+			var viewHeight = document.getElementById('readBoxContent').clientHeight
+			var aScrollHeight = document.getElementById('readBoxContent').scrollHeight;
+			var height = parseInt(document.getElementById('space').attributes['value'].value)
+
+			if ((height + aScrollTop + viewHeight) < aScrollHeight) {
+				var h = aScrollTop + height;
+				document.getElementById('readBoxContent').scrollTop = h;
+				autoS = requestAnimationFrame(autoScroll)
+			} else {
+				cancelAnimationFrame(autoS)
+				if (document.getElementById('space').classList[0] === 'active') {
+					document.getElementById('space').classList.remove('active')
+					document.getElementById('space').classList.add('stop')
+				}
+			}
+		} else {
+			cancelAnimationFrame(autoS)
+		}
+	}
+	document.getElementById('a').onclick = function() {
+		document.getElementById('space').attributes['value'].value = '1'
+	}
+	document.getElementById('d').onclick = function() {
+		document.getElementById('space').attributes['value'].value = '2'
+	}
+
+	// 字体放大缩小
+	document.getElementById('+').onclick = function() {
+		const cfont = window.getComputedStyle(document.getElementById('readBoxText'), null).getPropertyValue('font-size');
+		const numFont = parseFloat(cfont)
+		document.getElementById('readBoxText').style.fontSize = (numFont + 2 ) + 'px'
+		const cfont2 = window.getComputedStyle(document.getElementById('readBoxContent-title'), null).getPropertyValue('font-size');
+		const numFont2 = parseFloat(cfont2)
+		document.getElementById('readBoxContent-title').style.fontSize = (numFont2 + 2 ) + 'px'
+	}
+	document.getElementById('-').onclick = function() {
+		const cfont = window.getComputedStyle(document.getElementById('readBoxText'), null).getPropertyValue('font-size');
+		const numFont = parseFloat(cfont)
+		document.getElementById('readBoxText').style.fontSize = (numFont - 2 ) + 'px'
+		const cfont2 = window.getComputedStyle(document.getElementById('readBoxContent-title'), null).getPropertyValue('font-size');
+		const numFont2 = parseFloat(cfont2)
+		document.getElementById('readBoxContent-title').style.fontSize = (numFont2 - 2 ) + 'px'
+	}
+
+	// 禁止空格翻页
+	document.body.onkeydown = function(event) {
+		if (event.keyCode == 32) {
+			var e = window.event || event;
+			if (e.preventDefault) {
+				e.preventDefault();
+			} else {
+				window.event.returnValue = false;
+			}
+		};
+	}
+
+	document.onkeyup= function (e) {
+		var theEvent = window.event || e;
+		var code = theEvent.keyCode || theEvent.which;
+		if (code == 39) {
+			document.getElementById('k2').click();
+		}
+		if (code == 37) {
+			document.getElementById('k1').click();
+		}
+		if (code == 32) {
+			document.getElementById('space').click();
+		}
+		if (code == 38) {
+			document.getElementById('uparrow').click();
+		}
+		if (code == 40) {
+			document.getElementById('downarrow').click();
+		}
+		if (code == 65) {
+			document.getElementById('a').click();
+		}
+		if (code == 68) {
+			document.getElementById('d').click();
+		}
+		if (code == 187) {
+			document.getElementById('+').click();
+		}
+		if (code == 189) {
+			document.getElementById('-').click();
+		}
+		if (code == 81) {
+			document.getElementById('q').click();
+		}
+		if (code == 69) {
+			document.getElementById('e').click();
+		}
+	}
+	document.getElementById('chapter-status').onclick = function() {
+		(' ' + document.getElementById('chapter-list').className + ' ').indexOf(' ' + 'chapter-list-active' + ' ') === -1?document.getElementById('chapter-list').classList.add('chapter-list-active'):document.getElementById('chapter-list').classList.remove('chapter-list-active');
+	}
+	document.getElementById('readBoxText').onclick = function() {
+		if((' ' + document.getElementById('chapter-list').className + ' ').indexOf(' ' + 'chapter-list-active' + ' ') > -1) {
+			document.getElementById('chapter-list').classList.remove('chapter-list-active')
+		}
+	}
+
+	// 朗读
+	var speaker = new window.SpeechSynthesisUtterance();
+	var speakTimer, stopTimer;
+
+	// 开始朗读
+	document.getElementById('q').onclick = function speakText() {
+		var text = document.getElementById('readBoxText').innerHTML.replace(/<p>/g, '').replace(/<\/p>/g, '')
+		clearTimeout(speakTimer);
+		window.speechSynthesis.cancel();
+		speakTimer = setTimeout(function () {
+			speaker.text = text;
+			window.speechSynthesis.speak(speaker);
+		}, 200);
+	}
+
+	// 停止朗读
+	document.getElementById('e').onclick = function stopSpeak() {
+		clearTimeout(stopTimer);
+		clearTimeout(speakTimer);
+		stopTimer = setTimeout(function () {
+			window.speechSynthesis.cancel();
+		}, 20);
+	}
+
+</script>
