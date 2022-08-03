@@ -369,7 +369,6 @@
 				opacity: 1;
 			}
 			#settings:hover > #settings-list {
-				height: 100px;
 				max-height: max-content;
 				background-color:rgba(0,0,0,.5);
 				color:rgba(255,255,255,1);
@@ -384,7 +383,7 @@
 				left: 0;
 				font-size: 14px;
 				width: 10%;
-				height: 0px;
+				max-height: 0px;
 				z-index: 101;
 				border-radius: 7px 7px 0 0;
 				transition: .25s;
@@ -481,9 +480,11 @@
 						<div id="settings-list">
 							<div id="settings-list-box">
 								<div id="settings-list-content">
-									<span>居左</span>
-									<span>反向</span>
-									<span>帮助</span>
+									<span id="settings-background">背景</span>
+									<span id="settings-transparent">透明</span>
+									<span id="settings-left">居左</span>
+									<span id="settings-reverse">反向</span>
+									<span id="settings-help">帮助</span>
 								</div>
 							</div>
 						</div>
