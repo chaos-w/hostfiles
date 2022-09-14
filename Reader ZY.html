@@ -780,10 +780,11 @@
 					// 文件名
 					if (document.getElementById("file").value != '') {
 						_FileName = document.getElementById("file").value;
+						_FileName = _FileName.replace(/^.+?\\([^\\]+?)(\.[^\.\\]*?)?$/gi, "$1").substring(0, 6); //正则表达式获取文件名，不带后缀
 					} else {
 						_FileName = file.name
+						_FileName = _FileName.replace(/^(\.[^\.\\]*?)?$/gi, "$1").substring(0, 6); //正则表达式获取文件名，不带后缀
 					}
-					_FileName = _FileName.replace(/^.+?\\([^\\]+?)(\.[^\.\\]*?)?$/gi, "$1").substring(0, 6); //正则表达式获取文件名，不带后缀
 					// 读取文件
 					reader.readAsText(file);
 					reader.onload = function (e) {
