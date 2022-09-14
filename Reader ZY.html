@@ -19,14 +19,12 @@
 				z-index: 2;
 				position: fixed;
 				top: 0;
-				left: -20px;
-				width: calc(100% + 20px);
+				left: 0;
+				width: 100%;
 				height: 100%;
 				object-fit: cover;
 				transition: opacity 1s,transform .25s,filter .25s;
 				opacity: 0;
-				background-color:lightblue;
-				background-image: linear-gradient(20deg, #a0d7a0, transparent);
 			}
 			#cover {
 				z-index: 3;
@@ -234,7 +232,7 @@
 			#insertItem {
 				width: 100px;
 				outline: 0;
-    			border: none;
+    		border: none;
 				padding: 0 10px;
 				font-size: 14px;
 				text-align: center;
@@ -250,13 +248,64 @@
 			#insertItem::-webkit-input-placeholder {
 				color:rgba(255,255,255,1);
 			}
+			#fileArea {
+				width: 50%;
+				height: 40%;
+				position: relative;
+				display: inline-block;
+				overflow: hidden;
+				border-radius: 10px;
+				margin: 0 5px;
+				color:rgba(255,255,255,1);
+				background-color: rgba(0,0,0,.1);
+				box-shadow: rgb(0 0 0 / 60%) 0 0 5px;
+				transition: .25s;
+				opacity: 1;
+			}
+			#fileAreaBG1 {
+				position: absolute;
+				width: 100%;
+				height: 100%;
+				z-index: 11;
+				background-image: linear-gradient(223deg, #00000069, transparent);
+				transition: .75s;
+				opacity: 1;
+			}
+			#fileAreaBG2 {
+				position: absolute;
+				width: 100%;
+				height: 100%;
+				z-index: 11;
+				background-image: linear-gradient(68deg, #00000069, transparent);
+				transition: .75s;
+				opacity: 0;
+			}
+			#fileArea:hover #fileAreaBG1{
+				opacity: 0;
+			}
+			#fileArea:hover #fileAreaBG2{
+				opacity: 1;
+			}
+			#fileArea input{
+				position: absolute;
+				left: 0;
+				top: 0;
+				opacity: 0;
+			}
+			#fileArea span{
+				position: relative;
+				top: 40%;
+				z-index: 12;
+				text-shadow: 1px 1px 1px rgb(0 0 0 / 60%);
+			}
 			#search {
 				outline: 0;
-    			border: none;
+    		border: none;
 				padding: 0 10px;
 				font-size: 14px;
 				text-align: center;
 				font-family: var(--fonts-light);
+				width: 50%;
 				height: 23px;
 				border-radius: 10px;
 				margin: 0 5px;
@@ -264,6 +313,7 @@
 				background-color: rgba(0,0,0,.1);
 				box-shadow: rgb(0 0 0 / 60%) 0 0 5px;
 				transition: .25s;
+				text-shadow: 1px 1px 1px rgb(0 0 0 / 60%);
 			}
 			#search::-webkit-input-placeholder {
 				color:rgba(255,255,255,1);
@@ -486,7 +536,12 @@
 									<span id="settings-transparent">透明</span>
 									<span id="settings-left">居左</span>
 									<span id="settings-reverse">反向</span>
-									<span id="settings-help">帮助</span>
+									<span id="settings-help" title="说明：
+	左右键翻页；
+	空格自动翻页/暂停；
+	A/D调整翻页速度；
+	Q/E开关朗读功能；
+	+/-调整字体大小">帮助</span>
 								</div>
 							</div>
 						</div>
@@ -512,19 +567,17 @@
 					<div id="import" style="text-align: center; margin:30px; ">
 						<h2>Read Box</h2>
 						<p>&nbsp;</p>
-						<input id="file" type="file" onchange="jsReadFiles(this.files)" style="margin-left: 70px;" />
-						<p>此处导入 / Import here</p>
-						<p>&nbsp;</p>
-						<input placeholder="或者此处搜索" type="text" id="search" size="30" autocomplete="off" onkeydown="entersearch()"/>
+						<input placeholder="或者此处搜索" type="text" id="search" size="30" autocomplete="off"
+							onkeydown="entersearch()" />
 						<div id="search-result"></div>
-						<div>
-							<p>&nbsp;</p>
-							<p>说明：</br>
-								左右键翻页；</br>
-								空格自动翻页/暂停；</br>
-								A/D调整翻页速度；</br>
-								Q/E开关朗读功能；</br>
-								+/-调整字体大小；</p>
+						<p>&nbsp;</p>
+						<div  @dragover="fileDragover" @drop="fileDrop">
+							<label id="fileArea">
+								<div id="fileAreaBG1" @dragover="fileDragover" @drop="fileDrop"></div>
+								<div id="fileAreaBG2" @dragover="fileDragover" @drop="fileDrop"></div>
+								<span  @dragover="fileDragover" @drop="fileDrop">此处导入 / 点击或者拖拽</span>
+								<input id="file" type="file" onchange="jsReadFiles(this.files)" />
+							</label>
 						</div>
 					</div>
 					<div id="readBoxContent-title"></div>
@@ -686,135 +739,168 @@
 
 
 	// ReadBox
-	function jsReadFiles(files) {
-		if (files.length) {
-			var file = files[0];
-			var reader = new FileReader();
-			if (/text+/.test(file.type)) {
-				// 文件名
-				_FileName = document.getElementById("file").value;
-				_FileName = _FileName.replace(/^.+?\\([^\\]+?)(\.[^\.\\]*?)?$/gi, "$1").substring(0,6); //正则表达式获取文件名，不带后缀
-				// 读取文件
-				reader.readAsText(file);
-				reader.onload = function(e) {
-					var errorutf8 = this.result.match(/�/g) != null?this.result.match(/�/g).length:0
-					reader.readAsText(file, 'gbk');
-					reader.onload = function(oFRevent) {
-						var errorgbk = this.result.match(/�/g) != null?this.result.match(/�/g).length:0
-						this.encoding = errorutf8 < errorgbk?'UTF-8':'gbk'
-						reader.readAsText(file, this.encoding);
-						reader.onload = function(oFRevent) {
-							let Origin = this.result
-							// 预处理
-							let Fix1 = new RegExp('###','g')
-							Origin = Origin.replace(Fix1,'')
-							let Fix2 = new RegExp('下载小说TXT合集就上downnovel.com','g')
-							Origin = Origin.replace(Fix2,'')
-							// 存储所有文字
-							let backUp = Origin;
-							document.getElementById('backUp').innerHTML = backUp;
-							// Split chapter
-							if (Origin.match(/(?=\n\S+)/g) != null && (Origin.match(/(?=\n\S+)/g).length > (Origin.match(/\n/g).length * 0.5))) {
-								// 大部分顶格
-								if (Origin.match(/Chapter/g) != null && Origin.match(/Chapter/g).length > 10) {
-									var allText = Origin.split(/(?=Chapter)/);
-								} else if (Origin.match(/\n第/g) != null && Origin.match(/\n第/g).length > 10) {
-									var allText = Origin.split(/(?=\n第)/);
-								} else {
-									var allText = Origin.split(/(?=\r\n\r\n)/);
-								}
-							} else {
-								// 正常
-								if (Origin.match(/(?=(\n\S[^\n]+(\n[^\n^\S]{2}\S[^\n]+){6}))/g) != null && Origin.match(/(?=(\n\S[^\n]+(\n[^\n^\S]{2}\S[^\n]+){6}))/g).length > 10) {
-									// 以章节名顶格并且正文换行且起码有6行为一章节
-									var allText = Origin.split(/(?=\n\S[^\n]+\n[^\n^\S]{2}\S[^\n]+\n[^\n^\S]{2}\S[^\n]+\n[^\n^\S]{2}\S[^\n]+\n[^\n^\S]{2}\S[^\n]+\n[^\n^\S]{2}\S[^\n]+)/);
-									// } else if (Origin.match(/\n[ 　]/g) != null) {
-									// 	// 章节名不顶格，正文都
-									// 	var summary = Origin.split(/(?=\n[ 　])/)[0]
-									// 	var nonSummary = Origin.split(summary)[1]
-									// 	var contentV1 = nonSummary.split(/\n(?=[^\n]+\n\n[ 　][^\n]+\n[^\n]+)/)
-									// 	alert(contentV1)
-									// 	// 章节名顶格，正文换多行
-									// 	// 1.导入 2.预处理 3.储存 4.去头01写入 5.分章a[n] 6.循环分标题 7.写入标题
-									//  // 1.导入 2.预处理 3.取头a 4.取身体，分章b[n] 5.循环分标题cd 6.存入结构[书名,0],[a,b],...[a,b]
-								} else {
-									var allText = Origin.split(/(?=\n\S)/);
-								}
-							}
-							let i = 0;
-							if(allText[i] != null && allText[i].match(/\n\S/) != null) {
-								// Split Title
-								if (allText[i].match(/(?=(\n\S[^\n]+(\n[^\n^\S]{2}\S[^\n]+){6}))/g) != null) {
-									var Page = allText[i].split(/(?<=\n\S[^\n]+)(?=\n[^\n^\S]{2}\S[^\n]+\n[^\n^\S]{2}\S[^\n]+\n[^\n^\S]{2}\S[^\n]+\n[^\n^\S]{2}\S[^\n]+\n[^\n^\S]{2}\S[^\n]+)/)
-								} else if (allText[i].match(/^第/) != null) {
-									var Page = allText[i].split(/(?<=^第[^\n]*\n)/);
-								} else if (allText[i].match(/^Chapter/) != null) {
-									var Page = allText[i].split(/(?<=Chapter[^\n]*\n)/);
-								} else {
-									var Page = []
-									Page[0] = ''
-									Page[1] = allText[i]
-									// var Page = allText[i].split(/(?<=\n\S[^\n]*\n)/);
-								}
-								// Write the page title
-								// document.title = Page[0];
-								document.getElementById('readBoxContent-title').innerHTML = Page[0];
-								// Write the page footer
-								if (Page[0]!= undefined && Page[0] === '') {
-									document.querySelector('#chapter-status > span').innerHTML = '选择章节，或按→开始阅读' + ' 0 %';
-								} else {
-									document.querySelector('#chapter-status > span').innerHTML = Page[0] + ' 0 %';
-								}
-								document.querySelector('#novel-status > span').innerHTML = '《' + _FileName + '》';
-								if (Page[1] != undefined) {
-									let PageContent = Page[1].split(/[(\r\n)\r\n]+/);
-									let PageText = ' ';
-									for (j = 0; j < PageContent.length; j ++) {
-										PageText = PageText + '<p>' + PageContent[j] + '</p>'
-									}
-									// Write the page content
-									document.getElementById('readBoxText').innerHTML = PageText;
-								}
-							} else {
-								document.getElementById('readBoxText').innerHTML = allText[i];
-								console.log('import error')
-							}
-							// import chapter list
-							if (allText.length) {
-								var catalogue = ' '
-								for (k = 0; k < allText.length; k ++) {
-									if(allText[k].match(/\n\S/) != null) {
-										// Split Title
-										if (allText[k].match(/(?=\n\S[^\n]+(\n[^\n^\S]{2}\S[^\n]+){6})/) != null) {
-											var Page = allText[k].split(/(?<=\n\S[^\n]+)(?=\n[^\n^\S]{2}\S[^\n]+\n[^\n^\S]{2}\S[^\n]+\n[^\n^\S]{2}\S[^\n]+\n[^\n^\S]{2}\S[^\n]+\n[^\n^\S]{2}\S[^\n]+)/)
-										} else if (allText[k].match(/^Chapter/) != null) {
-											var Page = allText[k].split(/(?<=Chapter[^\n]*\n)/);
-										} else if (allText[k].match(/^第/) != null) {
-											var Page = allText[k].split(/(?<=^第[^\n]*\n)/);
-										} else {
-											var Page = []
-											Page[0] = allText[k].substring(0,20) + '^_^'
-											Page[1] = allText[k]
-											// var Page = allText[k].split(/(?<=\n\S[^\n]*\n)/);
-										}
-										// Page[0] is Page title
-										catalogue = catalogue + '<p id=\'' + k + '\' href=\'\/\' onclick=\'selectPage(' + k + ')\'>' + k + ' - ' + Page[0] + '</p>';
+	// Drag
+	var oDragWrap = document.querySelector("#fileArea")
+	oDragWrap.addEventListener(
+		"dragenter",
+		function (e) {
+			e.preventDefault();
+		},
+		false
+	);
+	oDragWrap.addEventListener(
+		"dragover",
+		function (e) {
+			e.preventDefault();
+		},
+		false
+	);
+	oDragWrap.addEventListener(
+		"drop",
+		function (e) {
+			dropHandler(e);
+		},
+		false
+	);
+	var dropHandler = function (e) {
+		e.preventDefault();
+		var fileList = e.dataTransfer.files;
+		if (fileList.length == 0) {
+			return;
+		} else {
+			jsReadFiles(fileList)
+		}
+	};
+
+		function jsReadFiles(files) {
+			if (files.length) {
+				var file = files[0];
+				var reader = new FileReader();
+				if (/text+/.test(file.type)) {
+					// 文件名
+					_FileName = document.getElementById("file").value;
+					_FileName = _FileName.replace(/^.+?\\([^\\]+?)(\.[^\.\\]*?)?$/gi, "$1").substring(0, 6); //正则表达式获取文件名，不带后缀
+					// 读取文件
+					reader.readAsText(file);
+					reader.onload = function (e) {
+						var errorutf8 = this.result.match(/�/g) != null ? this.result.match(/�/g).length : 0
+						reader.readAsText(file, 'gbk');
+						reader.onload = function (oFRevent) {
+							var errorgbk = this.result.match(/�/g) != null ? this.result.match(/�/g).length : 0
+							this.encoding = errorutf8 < errorgbk ? 'UTF-8' : 'gbk'
+							reader.readAsText(file, this.encoding);
+							reader.onload = function (oFRevent) {
+								let Origin = this.result
+								// 预处理
+								let Fix1 = new RegExp('###', 'g')
+								Origin = Origin.replace(Fix1, '')
+								let Fix2 = new RegExp('下载小说TXT合集就上downnovel.com', 'g')
+								Origin = Origin.replace(Fix2, '')
+								// 存储所有文字
+								let backUp = Origin;
+								document.getElementById('backUp').innerHTML = backUp;
+								// Split chapter
+								if (Origin.match(/(?=\n\S+)/g) != null && (Origin.match(/(?=\n\S+)/g).length > (Origin.match(/\n/g).length * 0.5))) {
+									// 大部分顶格
+									if (Origin.match(/Chapter/g) != null && Origin.match(/Chapter/g).length > 10) {
+										var allText = Origin.split(/(?=Chapter)/);
+									} else if (Origin.match(/\n第/g) != null && Origin.match(/\n第/g).length > 10) {
+										var allText = Origin.split(/(?=\n第)/);
 									} else {
-										// Page[0] is Page title
-										catalogue = catalogue + '<p id=\'' + k + '\' href=\'\/\' onclick=\'selectPage(' + k + ')\'>' + k + ' - ' + allText[k].substring(0,10) + '</p>';
+										var allText = Origin.split(/(?=\r\n\r\n)/);
+									}
+								} else {
+									// 正常
+									if (Origin.match(/(?=(\n\S[^\n]+(\n[^\n^\S]{2}\S[^\n]+){6}))/g) != null && Origin.match(/(?=(\n\S[^\n]+(\n[^\n^\S]{2}\S[^\n]+){6}))/g).length > 10) {
+										// 以章节名顶格并且正文换行且起码有6行为一章节
+										var allText = Origin.split(/(?=\n\S[^\n]+\n[^\n^\S]{2}\S[^\n]+\n[^\n^\S]{2}\S[^\n]+\n[^\n^\S]{2}\S[^\n]+\n[^\n^\S]{2}\S[^\n]+\n[^\n^\S]{2}\S[^\n]+)/);
+										// } else if (Origin.match(/\n[ 　]/g) != null) {
+										// 	// 章节名不顶格，正文都
+										// 	var summary = Origin.split(/(?=\n[ 　])/)[0]
+										// 	var nonSummary = Origin.split(summary)[1]
+										// 	var contentV1 = nonSummary.split(/\n(?=[^\n]+\n\n[ 　][^\n]+\n[^\n]+)/)
+										// 	alert(contentV1)
+										// 	// 章节名顶格，正文换多行
+										// 	// 1.导入 2.预处理 3.储存 4.去头01写入 5.分章a[n] 6.循环分标题 7.写入标题
+										//  // 1.导入 2.预处理 3.取头a 4.取身体，分章b[n] 5.循环分标题cd 6.存入结构[书名,0],[a,b],...[a,b]
+									} else {
+										var allText = Origin.split(/(?=\n\S)/);
 									}
 								}
-								catalogue = catalogue + '<p id=\'' + 'final' + '\'>'  + '</p>';
-								document.getElementById('chapter-list-content').innerHTML = catalogue;
-								document.getElementById('final').href = k;
+								let i = 0;
+								if (allText[i] != null && allText[i].match(/\n\S/) != null) {
+									// Split Title
+									if (allText[i].match(/(?=(\n\S[^\n]+(\n[^\n^\S]{2}\S[^\n]+){6}))/g) != null) {
+										var Page = allText[i].split(/(?<=\n\S[^\n]+)(?=\n[^\n^\S]{2}\S[^\n]+\n[^\n^\S]{2}\S[^\n]+\n[^\n^\S]{2}\S[^\n]+\n[^\n^\S]{2}\S[^\n]+\n[^\n^\S]{2}\S[^\n]+)/)
+									} else if (allText[i].match(/^第/) != null) {
+										var Page = allText[i].split(/(?<=^第[^\n]*\n)/);
+									} else if (allText[i].match(/^Chapter/) != null) {
+										var Page = allText[i].split(/(?<=Chapter[^\n]*\n)/);
+									} else {
+										var Page = []
+										Page[0] = ''
+										Page[1] = allText[i]
+										// var Page = allText[i].split(/(?<=\n\S[^\n]*\n)/);
+									}
+									// Write the page title
+									// document.title = Page[0];
+									document.getElementById('readBoxContent-title').innerHTML = Page[0];
+									// Write the page footer
+									if (Page[0] != undefined && Page[0] === '') {
+										document.querySelector('#chapter-status > span').innerHTML = '选择章节，或按→开始阅读' + ' 0 %';
+									} else {
+										document.querySelector('#chapter-status > span').innerHTML = Page[0] + ' 0 %';
+									}
+									document.querySelector('#novel-status > span').innerHTML = '《' + _FileName + '》';
+									if (Page[1] != undefined) {
+										let PageContent = Page[1].split(/[(\r\n)\r\n]+/);
+										let PageText = ' ';
+										for (j = 0; j < PageContent.length; j++) {
+											PageText = PageText + '<p>' + PageContent[j] + '</p>'
+										}
+										// Write the page content
+										document.getElementById('readBoxText').innerHTML = PageText;
+									}
+								} else {
+									document.getElementById('readBoxText').innerHTML = allText[i];
+									console.log('import error')
+								}
+								// import chapter list
+								if (allText.length) {
+									var catalogue = ' '
+									for (k = 0; k < allText.length; k++) {
+										if (allText[k].match(/\n\S/) != null) {
+											// Split Title
+											if (allText[k].match(/(?=\n\S[^\n]+(\n[^\n^\S]{2}\S[^\n]+){6})/) != null) {
+												var Page = allText[k].split(/(?<=\n\S[^\n]+)(?=\n[^\n^\S]{2}\S[^\n]+\n[^\n^\S]{2}\S[^\n]+\n[^\n^\S]{2}\S[^\n]+\n[^\n^\S]{2}\S[^\n]+\n[^\n^\S]{2}\S[^\n]+)/)
+											} else if (allText[k].match(/^Chapter/) != null) {
+												var Page = allText[k].split(/(?<=Chapter[^\n]*\n)/);
+											} else if (allText[k].match(/^第/) != null) {
+												var Page = allText[k].split(/(?<=^第[^\n]*\n)/);
+											} else {
+												var Page = []
+												Page[0] = allText[k].substring(0, 20) + '^_^'
+												Page[1] = allText[k]
+												// var Page = allText[k].split(/(?<=\n\S[^\n]*\n)/);
+											}
+											// Page[0] is Page title
+											catalogue = catalogue + '<p id=\'' + k + '\' href=\'\/\' onclick=\'selectPage(' + k + ')\'>' + k + ' - ' + Page[0] + '</p>';
+										} else {
+											// Page[0] is Page title
+											catalogue = catalogue + '<p id=\'' + k + '\' href=\'\/\' onclick=\'selectPage(' + k + ')\'>' + k + ' - ' + allText[k].substring(0, 10) + '</p>';
+										}
+									}
+									catalogue = catalogue + '<p id=\'' + 'final' + '\'>' + '</p>';
+									document.getElementById('chapter-list-content').innerHTML = catalogue;
+									document.getElementById('final').href = k;
+								}
+								document.getElementById('import').remove();
 							}
-							document.getElementById('import').remove();
 						}
 					}
 				}
 			}
 		}
-	}
 
 	function selectPage(n) {
 		if (n === -1) {
