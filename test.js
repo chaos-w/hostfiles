@@ -1,4 +1,3 @@
-<script>
 function initialize(){
 var myLatlng_seoul=new google.maps.LatLng(37.5175829,127.0416468);
 var myLatlng_busan=new google.maps.LatLng(35.1374179,129.0645658);
@@ -71,4 +70,3 @@ map:map_iuncheon
 });
 }
 google.maps.event.addDomListener(window, 'load', initialize);
-</script>
